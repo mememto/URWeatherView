@@ -11,7 +11,9 @@ import Foundation
 let URKernelShaderkRipple: String = "URKernelShaderRipple.cikernel.fsh"
 
 open class URRippleFilter: URFilter {
+
     required public init?(coder aDecoder: NSCoder) {
+
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -25,10 +27,9 @@ open class URRippleFilter: URFilter {
               [sampler: CISampler, time: TimeInterval]
      */
     required public init(frame: CGRect, cgImage: CGImage, inputValues: [Any]) {
+
         super.init(frame: frame, cgImage: cgImage, inputValues: inputValues)
-
         self.loadCIKernel(from: URKernelShaderkRipple)
-
         guard inputValues.count == 2 else { return }
         self.customAttributes = inputValues
     }
@@ -43,8 +44,8 @@ open class URRippleFilter: URFilter {
               [sampler: CISampler, time: TimeInterval]
      */
     required public init(frame: CGRect, imageView: UIImageView, inputValues: [Any]) {
-        super.init(frame: frame, imageView: imageView, inputValues: inputValues)
 
+        super.init(frame: frame, imageView: imageView, inputValues: inputValues)
         self.loadCIKernel(from: URKernelShaderkRipple)
 
         guard inputValues.count == 2 else { return }
@@ -52,17 +53,24 @@ open class URRippleFilter: URFilter {
     }
 
     override func applyFilter() -> CIImage {
+
         let samplerROI = CGRect(x: 0, y: 0, width: self.inputImage!.extent.width, height: self.inputImage!.extent.height)
         let ROICallback: (Int32, CGRect) -> CGRect = { (samplerIndex, destination) in
+
             if samplerIndex == 2 {
+
                 return samplerROI
             }
             return destination
         }
-        guard let resultImage: CIImage = self.customKernel?.apply(withExtent: self.extent, roiCallback: ROICallback, arguments: self.customAttributes) else {
-            fatalError("Filtered Image merging is failed!!")
+        if let customAttributes = self.customAttributes {
+
+            guard let resultImage: CIImage = self.customKernel?.apply(extent: self.extent, roiCallback: ROICallback, arguments: customAttributes) else {
+
+                fatalError("Filtered Image merging is failed!!")
+            }
+            return resultImage
         }
-        
-        return resultImage
+        fatalError("Filtered Image merging is failed!!")
     }
 }

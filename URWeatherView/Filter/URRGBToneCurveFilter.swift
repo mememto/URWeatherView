@@ -11,7 +11,9 @@ import Foundation
 let URKernelShaderRGBToneCurve: String = "URKernelShaderRGBToneCurve.cikernel.fsh"
 
 open class URRGBToneCurveFilter: URFilter {
+
     required public init?(coder aDecoder: NSCoder) {
+
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -25,11 +27,13 @@ open class URRGBToneCurveFilter: URFilter {
                [red: CIImage, green: CIImage, blue: CIImage, original: CIImage]
      */
     required public init(frame: CGRect, cgImage: CGImage, inputValues: [Any]) {
+
         super.init(frame: frame, cgImage: cgImage, inputValues: inputValues)
-
         self.loadCIColorKernel(from: URKernelShaderRGBToneCurve)
+        guard inputValues.count == 4 else {
 
-        guard inputValues.count == 4 else { return }
+            return
+        }
         self.customAttributes = inputValues
     }
 
@@ -43,19 +47,26 @@ open class URRGBToneCurveFilter: URFilter {
               [red: CIImage, green: CIImage, blue: CIImage, original: CIImage]
      */
     required public init(frame: CGRect, imageView: UIImageView, inputValues: [Any]) {
+
         super.init(frame: frame, imageView: imageView, inputValues: inputValues)
-
         self.loadCIColorKernel(from: URKernelShaderRGBToneCurve)
+        guard inputValues.count >= 4 else {
 
-        guard inputValues.count >= 4 else { return }
+            return
+        }
         self.customAttributes = inputValues
     }
 
     override func applyFilter() -> CIImage {
-        guard let resultImage: CIImage = (self.customKernel as! CIColorKernel).apply(withExtent: self.extent, arguments: self.customAttributes) else {
-            fatalError("Filtered Image merging is failed!!")
-        }
 
-        return resultImage
+        if let customAttributes = self.customAttributes {
+
+            guard let resultImage: CIImage = (self.customKernel as! CIColorKernel).apply(extent: self.extent, arguments: customAttributes) else {
+
+                fatalError("Filtered Image merging is failed!!")
+            }
+            return resultImage
+        }
+        fatalError("Filtered Image merging is failed!!")
     }
 }
